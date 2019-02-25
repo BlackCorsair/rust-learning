@@ -15,5 +15,4 @@ fn main() {
 
     let output = adaline.calculate_output(&data[0]);
     println!("Output: {:?}", output);
-
 }
