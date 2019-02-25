@@ -1,62 +1,66 @@
-use rand::Rng;
-use rand::thread_rng;
+mod Data;
+use Data::Data;
+
+mod Adaline;
+use Adaline::Adaline;
+
+use std::io::Read;
+use std::fs::File;
+use std::string::String;
 
 #[derive(Debug)]
-struct Adaline {
-    weights: Vec<f64>,
-    threshold: f64,
-    output: f64,
-    inputs: u8
+struct CsvReader {
+    file_name: String,
+    file: File,
+    raw_content: String,
+    data: Vec<f64>,
 }
-impl Adaline {
-    fn new(inputs: u8) -> Adaline {
-        Adaline{
-            weights: random_floats64_vector(inputs),
-            threshold: random_float64(),
-            inputs: inputs,
-            output: 0.0
+
+impl CsvReader {
+    fn new (file_name: &'static str) -> CsvReader {
+        CsvReader {
+            file_name: String::from(file_name),
+            file: File::open(file_name)
+            .expect("Couldn't open the file specified."),
+            raw_content: String::new(),
+            data: Vec::new(),
         }
     }
+    
+    fn read_content (&mut self){
+        self.file.read_to_string(&mut self.raw_content)
+        .expect("Error reading file content.");
+    }
 
-    fn calculate_output(self, inputs_vector: Vec<Vec<f64>>) -> f64 {
-        let inputs_len = inputs_vector[0].len() - 1;
-        println!("inputs_len: {:?}", inputs_len);
-        assert_eq!((inputs_len), self.weights.len());
-        let mut output = 0.0;
-        for i in 0..inputs_vector.len() {
-            for j in 0..inputs_len {
-                output += (inputs_vector[i][j] - self.weights[j]).powi(2) - self.threshold;
-            }
+    fn read_data_from_csv(&mut self) -> Vec<Data>{
+        let mut data: Vec<Data> = Vec::new();
+
+        for line in self.raw_content.lines() {
+            let mut inputs = line.split(',')
+                                .filter_map(|s| s.parse::<f64>().ok())
+                                .collect::<Vec<_>>();
+            let output: f64 = inputs.pop().expect("Ops");
+            data.push(
+                Data {
+                    inputs: inputs,
+                    output: output
+                }
+            );
         }
-        return output;
+        return data
     }
-}
-
-fn random_floats64_vector(lenght: u8) -> Vec<f64> {
-    let mut floats: Vec<f64> = Vec::new();
-    for _i in 0..lenght {
-        &floats.push(random_float64());
-    }
-    floats
-}
-
-
-fn random_float64() -> f64 {
-    let mut rng = thread_rng();
-    return rng.gen_range(-1.0, 1.0);
 }
 
 fn main() {
-    let adaline = Adaline::new(8);
-    println!("Threshold: {threshold},
-        \n weights: {weights:#?}",
-        threshold=adaline.threshold,
-        weights=adaline.weights);
-    
-    let mut inputs: Vec<Vec<f64>> = Vec::new();
-    inputs.push([0.0, 0.2, -0.68, 0.0, 0.2, -0.68, 0.0, 0.2, -0.68].to_vec());
-    inputs.push([0.3, 0.3, -0.68, 0.0, 0.2, -0.68, 0.0, 0.2, -0.68].to_vec());
+    let adaline = Adaline::new(2);
 
-    let _output = adaline.calculate_output(inputs);
-    println!("Output: {:?}", _output);
+    let mut csv_reader = CsvReader::new("src/data.csv");
+    &csv_reader.read_content();
+    
+    let data: Vec<Data> = csv_reader.read_data_from_csv();
+    println!("Data: {:#?}", data);
+
+    let output = adaline.calculate_output(&data[0]);
+    println!("Output: {:?}", output);
+
 }
