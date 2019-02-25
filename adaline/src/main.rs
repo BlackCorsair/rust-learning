@@ -17,6 +17,19 @@ impl Adaline {
             output: 0.0
         }
     }
+
+    fn calculate_output(self, inputs_vector: Vec<Vec<f64>>) -> f64 {
+        let inputs_len = inputs_vector[0].len() - 1;
+        println!("inputs_len: {:?}", inputs_len);
+        assert_eq!((inputs_len), self.weights.len());
+        let mut output = 0.0;
+        for i in 0..inputs_vector.len() {
+            for j in 0..inputs_len {
+                output += (inputs_vector[i][j] - self.weights[j]).powi(2) - self.threshold;
+            }
+        }
+        return output;
+    }
 }
 
 fn random_floats64_vector(lenght: u8) -> Vec<f64> {
@@ -39,4 +52,11 @@ fn main() {
         \n weights: {weights:#?}",
         threshold=adaline.threshold,
         weights=adaline.weights);
+    
+    let mut inputs: Vec<Vec<f64>> = Vec::new();
+    inputs.push([0.0, 0.2, -0.68, 0.0, 0.2, -0.68, 0.0, 0.2, -0.68].to_vec());
+    inputs.push([0.3, 0.3, -0.68, 0.0, 0.2, -0.68, 0.0, 0.2, -0.68].to_vec());
+
+    let _output = adaline.calculate_output(inputs);
+    println!("Output: {:?}", _output);
 }
