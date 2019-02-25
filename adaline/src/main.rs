@@ -11,10 +11,10 @@ struct Adaline {
 impl Adaline {
     fn new(inputs: u8) -> Adaline {
         Adaline{
+            weights: random_floats64_vector(inputs),
             threshold: random_float64(),
             inputs: inputs,
-            output: 0.0,
-            weights: random_floats64_vector(inputs)
+            output: 0.0
         }
     }
 }
