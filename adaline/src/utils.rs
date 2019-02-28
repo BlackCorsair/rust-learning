@@ -51,7 +51,7 @@ impl CsvReader {
 
 #[derive(Debug)]
 pub struct Adaline {
-    weights: Vec<f64>,
+    pub weights: Vec<f64>,
     threshold: f64,
     output: f64,
 }
@@ -85,6 +85,14 @@ impl Adaline {
             error += (data.output - &output).powi(2);
         }
         return error / data_rows.len() as f64;
+    }
+
+    pub fn modify_weights(&mut self, data: &Data, learnfactor: f64) {
+        let learned_difference = learnfactor * (data.output - self.output);
+        self.threshold += learned_difference;
+        for i in 0..self.weights.len() {
+            self.weights[i] += &learned_difference * &data.inputs[i]
+        }
     }
 }
 
