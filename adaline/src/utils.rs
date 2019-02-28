@@ -1,10 +1,10 @@
 extern crate rand;
 
-use rand::Rng;
 use rand::thread_rng;
+use rand::Rng;
 
-use std::io::Read;
 use std::fs::File;
+use std::io::Read;
 use std::string::String;
 
 #[derive(Debug)]
@@ -16,37 +16,36 @@ pub struct CsvReader {
 }
 
 impl CsvReader {
-    pub fn new (file_name: &'static str) -> CsvReader {
+    pub fn new(file_name: &'static str) -> CsvReader {
         CsvReader {
             file_name: String::from(file_name),
-            file: File::open(file_name)
-            .expect("Couldn't open the file specified."),
+            file: File::open(file_name).expect("Couldn't open the file specified."),
             raw_content: String::new(),
             data: Vec::new(),
         }
     }
 
-    pub fn read_content (&mut self){
-        self.file.read_to_string(&mut self.raw_content)
-        .expect("Error reading file content.");
+    pub fn read_content(&mut self) {
+        self.file
+            .read_to_string(&mut self.raw_content)
+            .expect("Error reading file content.");
     }
 
-    pub fn read_data_from_csv(&mut self) -> Vec<Data>{
+    pub fn read_data_from_csv(&mut self) -> Vec<Data> {
         let mut data: Vec<Data> = Vec::new();
 
         for line in self.raw_content.lines() {
-            let mut inputs = line.split(',')
-            .filter_map(|s| s.parse::<f64>().ok())
-            .collect::<Vec<_>>();
+            let mut inputs = line
+                .split(',')
+                .filter_map(|s| s.parse::<f64>().ok())
+                .collect::<Vec<_>>();
             let output: f64 = inputs.pop().expect("Ops");
-            data.push(
-                Data {
-                    inputs: inputs,
-                    output: output
-                }
-                );
+            data.push(Data {
+                inputs: inputs,
+                output: output,
+            });
         }
-        return data
+        return data;
     }
 }
 
@@ -58,15 +57,15 @@ pub struct Adaline {
 }
 impl Adaline {
     /// Initializes the Adaline struct
-    pub fn new (inputs: u8) -> Adaline {
-        Adaline{
+    pub fn new(inputs: u8) -> Adaline {
+        Adaline {
             weights: random_floats64_vector(inputs),
             threshold: random_float64(),
-            output: 0.0
+            output: 0.0,
         }
     }
 
-    pub fn calculate_output (&self, data: &Data) -> f64 {
+    pub fn calculate_output(&self, data: &Data) -> f64 {
         assert_eq!(data.inputs.len(), self.weights.len());
         let mut output = 0.0;
 
@@ -78,8 +77,8 @@ impl Adaline {
 
         return output;
     }
-    
-    pub fn calculate_error (&self, data_rows: Vec<Data>) -> f64 {
+
+    pub fn calculate_error(&self, data_rows: Vec<Data>) -> f64 {
         let mut error: f64 = 0.0;
         for data in &data_rows {
             let output: f64 = self.calculate_output(&data);
