@@ -54,14 +54,16 @@ pub struct Adaline {
     pub weights: Vec<f64>,
     threshold: f64,
     output: f64,
+    learnfactor: f64
 }
 impl Adaline {
     /// Initializes the Adaline struct
-    pub fn new(inputs: u8) -> Adaline {
+    pub fn new(inputs: u8, learnfactor: f64) -> Adaline {
         Adaline {
             weights: random_floats64_vector(inputs),
             threshold: random_float64(),
             output: 0.0,
+            learnfactor: learnfactor
         }
     }
 
@@ -78,21 +80,46 @@ impl Adaline {
         return output;
     }
 
-    pub fn calculate_error(&self, data_rows: Vec<Data>) -> f64 {
-        let mut error: f64 = 0.0;
-        for data in &data_rows {
-            let output: f64 = self.calculate_output(&data);
-            error += (data.output - &output).powi(2);
-        }
-        return error / data_rows.len() as f64;
-    }
-
-    pub fn modify_weights(&mut self, data: &Data, learnfactor: f64) {
-        let learned_difference = learnfactor * (data.output - self.output);
+    pub fn modify_weights(&mut self, data: &Data) {
+        let learned_difference = self.learnfactor * (data.output - self.output);
         self.threshold += learned_difference;
         for i in 0..self.weights.len() {
             self.weights[i] += &learned_difference * &data.inputs[i]
         }
+    }
+
+    pub fn calculate_error(&mut self, data_rows: &Vec<Data>) -> f64 {
+        let mut error: f64 = 0.0;
+        for data in data_rows {
+            let output: f64 = self.calculate_output(&data);
+            error += (data.output - &output).powi(2);
+            self.modify_weights(&data);
+        }
+        return error / data_rows.len() as f64;
+    }
+
+    /*
+    '''
+    Name: training
+    Function: makes one cylce of training (from 3 to 5)
+    Input: rows, weights, threshold, learnfactor 
+    Returns: weights, threshold after the training
+'''
+def training(rows, weights, threshold, learnfactor):
+    for x in rows:
+        output = calculateOutputPerRow(x[0:len(weights)], weights, threshold)
+        weights, threshold = modifyWeights(output, x, weights, threshold, learnfactor)
+    return weights, threshold
+    */
+    pub fn training(&mut self, cycles: i32, data_rows: &Vec<Data>) -> f64 {
+        let mut lowest_error: f64 = 10000.0;
+        for _i in 0..cycles {
+            let current_error: f64 = self.calculate_error(&data_rows);
+            if current_error < lowest_error {
+                lowest_error = current_error;
+            }
+        }
+        lowest_error
     }
 }
 
