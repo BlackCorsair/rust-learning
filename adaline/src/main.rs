@@ -36,10 +36,17 @@ fn full_test() {
     let data_list: Vec<Data> = csv_reader.read_data_from_csv();
     
     // check the weights
-    println!("unmodified weights: {:?}", &adaline.weights);
-    adaline.modify_weights(&data_list[0]);
+    //adaline.modify_weights(&data_list[0]);
     
     // run!
-    let error: f64 = adaline.training(10000, &data_list);
+    let mut iter: i32 = 1000;
+    println!("Running training for {} interations", iter);
+    let error: f64 = adaline.training(iter, &data_list);
     println!("Final error: {:?}", &error);
+ 
+    iter = 10000;
+    println!("Running training for {} interations", iter);
+    let error: f64 = adaline.training(iter, &data_list);
+    println!("Final error: {:?}", &error);
+    
 }
