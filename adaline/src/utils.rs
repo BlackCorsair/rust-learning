@@ -128,7 +128,7 @@ impl Adaline {
     }
 
     fn write_errors_in_csv(self, errors: [Vec<f64>;2]) {
-        let training = Path::new("error_training");
+        let training = Path::new("error_training.csv");
 
         // Open a file in write-only mode, returns `io::Result<File>`
         let mut training_file = match File::create(&training) {
