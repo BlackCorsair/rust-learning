@@ -12,48 +12,6 @@ use std::io::prelude::*;
 use std::path::Path;
 
 #[derive(Debug)]
-pub struct CsvReader {
-    file_name: String,
-    file: File,
-    raw_content: String,
-    data: Vec<f64>,
-}
-
-impl CsvReader {
-    pub fn new(file_name: &'static str) -> CsvReader {
-        CsvReader {
-            file_name: String::from(file_name),
-            file: File::open(file_name).expect("Couldn't open the file specified."),
-            raw_content: String::new(),
-            data: Vec::new(),
-        }
-    }
-
-    pub fn read_content(&mut self) {
-        self.file
-        .read_to_string(&mut self.raw_content)
-        .expect("Error reading file content.");
-    }
-
-    pub fn read_data_from_csv(&mut self) -> Vec<Data> {
-        let mut data: Vec<Data> = Vec::new();
-
-        for line in self.raw_content.lines() {
-            let mut inputs = line
-            .split(',')
-            .filter_map(|s| s.parse::<f64>().ok())
-            .collect::<Vec<_>>();
-            let output: f64 = inputs.pop().expect("Ops");
-            data.push(Data {
-                inputs: inputs,
-                output: output,
-            });
-        }
-        return data;
-    }
-}
-
-#[derive(Debug)]
 pub struct Adaline {
     pub weights: Vec<f64>,
     threshold: f64,
@@ -151,11 +109,61 @@ impl Adaline {
     }
 }
 
+/*
+    UTILITY STRUCTS
+ */
+
+#[derive(Debug)]
+pub struct CsvReader {
+    file_name: String,
+    file: File,
+    raw_content: String,
+    data: Vec<f64>,
+}
+
+impl CsvReader {
+    pub fn new(file_name: &'static str) -> CsvReader {
+        CsvReader {
+            file_name: String::from(file_name),
+            file: File::open(file_name).expect("Couldn't open the file specified."),
+            raw_content: String::new(),
+            data: Vec::new(),
+        }
+    }
+
+    pub fn read_content(&mut self) {
+        self.file
+        .read_to_string(&mut self.raw_content)
+        .expect("Error reading file content.");
+    }
+
+    pub fn read_data_from_csv(&mut self) -> Vec<Data> {
+        let mut data: Vec<Data> = Vec::new();
+
+        for line in self.raw_content.lines() {
+            let mut inputs = line
+            .split(',')
+            .filter_map(|s| s.parse::<f64>().ok())
+            .collect::<Vec<_>>();
+            let output: f64 = inputs.pop().expect("Ops");
+            data.push(Data {
+                inputs: inputs,
+                output: output,
+            });
+        }
+        return data;
+    }
+}
+
 #[derive(Debug)]
 pub struct Data {
     pub inputs: Vec<f64>,
     pub output: f64,
 }
+
+/*
+    UTILITY FUNCTIONS
+ */
 
 pub fn random_floats64_vector(lenght: u8) -> Vec<f64> {
     let mut floats: Vec<f64> = Vec::new();
@@ -169,6 +177,10 @@ pub fn random_float64() -> f64 {
     let mut rng = thread_rng();
     return rng.gen_range(-1.0, 1.0);
 }
+
+/*
+    TESTING
+ */
 
 #[test]
 fn test_random_float() {
